@@ -16,7 +16,7 @@ pub struct FileEntry {
 }
 
 pub async fn get_all_files() -> Result<Vec<FileEntry>, Box<dyn Error>> {
-    let url = env::var("API_URL").map_err(|_| "API_URL is not set")?;
+    let url = env::var("API_URL").map_err(|_| "API_URL is not set")?.to_string() + "/files";
     let body = reqwest::Client::new()
         .get(&url)
         .send()

@@ -1,9 +1,10 @@
 [package]
 name = "crabpi-cli"
-version = "0.2.0"
+version = "1.2.0"
 edition = "2024"
 
 [dependencies]
+dirs = "7.0.0"
 dotenvy = "0.15.7"
 env = "1.0.1"
 ratatui = "0.30.2"
