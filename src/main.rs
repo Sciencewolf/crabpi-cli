@@ -1,13 +1,3 @@
-//! crabpi-cli: terminal UI for the crabpi file server.
-//!
-//! api/       HTTP calls (list, upload, download, rename, delete, system info)
-//! app.rs     state + actions; background tasks report back through channels
-//! events.rs  main loop and key handling
-//! ui.rs      drawing
-//! input.rs   text field with cursor editing
-//! complete.rs  Tab completion for the upload path prompt
-//! progress.rs / util.rs  small shared helpers
-
 mod api;
 mod app;
 mod complete;
@@ -29,7 +19,6 @@ use std::{
 
 const POLL_INTERVAL: Duration = Duration::from_secs(5);
 
-/// Fetches system info every `POLL_INTERVAL` and sends it to the UI.
 fn spawn_sys_poller() -> Receiver<SysEntry> {
     let (tx, rx) = mpsc::channel();
     tokio::spawn(async move {
@@ -45,7 +34,6 @@ fn spawn_sys_poller() -> Receiver<SysEntry> {
     rx
 }
 
-/// Re-fetches the file list every `POLL_INTERVAL` (the first list is loaded in `main`).
 fn spawn_files_poller() -> Receiver<Vec<FileEntry>> {
     let (tx, rx) = mpsc::channel();
     tokio::spawn(async move {
