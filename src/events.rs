@@ -1,7 +1,7 @@
 use crate::app::App;
 use crate::ui;
 use ratatui::{
-    crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
+    crossterm::event::{self, Event, KeyCode, KeyEventKind},
     DefaultTerminal,
 };
 use std::time::Duration;
@@ -18,21 +18,19 @@ pub fn run(terminal: &mut DefaultTerminal, app: &mut App) -> std::io::Result<()>
             if key.kind != KeyEventKind::Press {
                 continue;
             }
-            if handle_key(app, key) {
+            if handle_key(app, key.code) {
                 return Ok(());
             }
         }
     }
 }
 
-fn handle_key(app: &mut App, key: KeyEvent) -> bool {
-    let code = key.code;
-
+fn handle_key(app: &mut App, code: KeyCode) -> bool {
     if let Some((_, input)) = app.rename_input.as_mut() {
         match code {
             KeyCode::Enter => app.start_rename(),
             KeyCode::Esc => app.cancel_rename(),
-            _ => input.handle_key(key),
+            _ => input.handle_key(code),
         }
         return false;
     }
@@ -41,9 +39,8 @@ fn handle_key(app: &mut App, key: KeyEvent) -> bool {
         match code {
             KeyCode::Enter => app.start_upload(),
             KeyCode::Esc => app.cancel_upload(),
-            KeyCode::Tab => prompt.complete(false),
-            KeyCode::BackTab => prompt.complete(true),
-            _ => prompt.edit(key),
+            KeyCode::Tab => prompt.complete(),
+            _ => prompt.edit(code),
         }
         return false;
     }
