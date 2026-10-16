@@ -1,4 +1,5 @@
-use std::{env, error::Error, path::PathBuf};
+use crate::progress::Progress;
+use std::{env, error::Error, path::PathBuf, sync::Arc};
 use tokio::{fs::File, io::AsyncWriteExt};
 
 pub fn file_url(name: &str) -> Result<reqwest::Url, Box<dyn Error + Send + Sync>> {
@@ -12,7 +13,10 @@ pub fn file_url(name: &str) -> Result<reqwest::Url, Box<dyn Error + Send + Sync>
     Ok(url)
 }
 
-pub async fn download_file(name: &str) -> Result<PathBuf, Box<dyn Error + Send + Sync>> {
+pub async fn download_file(
+    name: &str,
+    progress: Arc<Progress>,
+) -> Result<PathBuf, Box<dyn Error + Send + Sync>> {
     let url = file_url(name)?;
 
     let safe_name = std::path::Path::new(name)
@@ -22,9 +26,11 @@ pub async fn download_file(name: &str) -> Result<PathBuf, Box<dyn Error + Send +
     let path = dir.join(safe_name);
 
     let mut response = reqwest::get(url).await?.error_for_status()?;
+    progress.set_total(response.content_length().unwrap_or(0));
     let mut file = File::create(&path).await?;
     while let Some(chunk) = response.chunk().await? {
         file.write_all(&chunk).await?;
+        progress.add(chunk.len() as u64);
     }
     file.flush().await?;
 
